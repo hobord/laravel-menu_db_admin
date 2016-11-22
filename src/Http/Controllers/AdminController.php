@@ -9,7 +9,7 @@ use Redirect;
 use Menu;
 use Hobord\MenuDb;
 
-class MenuDBAdminController extends Controller
+class AdminController extends Controller
 {
     public function index()
     {

@@ -47,13 +47,12 @@ class MenuDbAdminServiceProvider extends ServiceProvider
                 include __DIR__ . '/routes/web.php';
             });
 
-//            $router->group([
-//                'middleware' => 'api',
-//            ], function ($router) {
-//                include __DIR__.'/routes/api.php';
-//            });
+            $router->group([
+                'middleware' => 'api',
+            ], function ($router) {
+                include __DIR__.'/routes/api.php';
+            });
 
         });
-
     }
 }
