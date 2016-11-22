@@ -1,0 +1,23 @@
+{
+    "name": "hobord/menu_db_admin",
+    "description": "Admin for menu system in database",
+    "type": "library",
+    "license": "MIT",
+    "keywords": ["laravel", "menu", "lavary"],
+    "authors": [
+        {
+            "name": "Balazs Szabo",
+            "email": "balazs.szabo@gmail.com"
+        }
+    ],
+    "minimum-stability": "dev",
+    "autoload": {
+        "psr-4": {
+            "Hobord\\MenuDbAdmin\\": "src"
+        }
+    },
+    "require": {
+        "laravel/framework": "5.3.*",
+        "lavary/laravel-menu": "^1.6"
+    }
+}
