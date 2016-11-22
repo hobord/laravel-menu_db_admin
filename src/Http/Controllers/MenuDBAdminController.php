@@ -16,6 +16,7 @@ class MenuDBAdminController extends Controller
         $menu = Menu::get('admin.left_side');
         $menu->item('admin.structure.menu')->activate();
 
-        return view('vendor.hobord.menu_db_admin.index');
+        $menus = MenuDb\Menu::all();
+        return view('vendor.hobord.menu_db_admin.index',['menus' => $menus]);
     }
 }
