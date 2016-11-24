@@ -18,7 +18,8 @@
         <div>
             <span ng-repeat="col in colDefinitions"
                   compile="col.cellTemplate"
-                  ng-bind-html="node[col.field]">
+                  ng-bind-html="node[col.field]"
+                  style="display: inline-block; margin-left: 20px;">
             </span>
         </div>
     </div>

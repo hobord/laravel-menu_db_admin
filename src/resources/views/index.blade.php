@@ -71,6 +71,7 @@
         <div class="box-body">
             <tree-dnd
                 tree-data="menuItems"
+                callbacks="callbacks"
                 primary-key="id"
                 parent-key="parent_id"
                 tree-control="my_tree"
@@ -112,7 +113,47 @@
                 }).error(function (resultData, status, headers, config) {
                     console.error('Error data:', resultData);
                 });
-            }
+            };
+
+            var saveMenuItem = function (item) {
+                servicesHttpFacade.saveMenuItem(item).success(function (resultData, status, headers, config) {
+
+                }).error(function (resultData, status, headers, config) {
+                    console.error('Error data:', resultData);
+                });
+            };
+
+            var convertTreeToFlat = function(tree)
+            {
+                var result = [];
+                for(var i=0; i<tree.length; i++)
+                {
+                    console.log(tree[i]);
+                    var item = angular.copy(tree[i]);
+                    item.parent_id = tree[i]['__parent__'];
+                    if(item.parent_id===0) item.parent_id=null;
+                    delete item['__children__'];
+                    delete item['__dept__'];
+                    delete item['__hashKey__'];
+                    delete item['__icon__'];
+                    delete item['__index__'];
+                    delete item['__index_real__'];
+                    delete item['__level__'];
+                    delete item['__parent__'];
+                    delete item['__parent_real__'];
+                    delete item['__uid__'];
+                    delete item['__visible__'];
+                    delete item['__expanded__'];
+                    item['weight'] = i;
+
+                    result.push(item);
+                    if(tree[i]['__children__'].length>0) {
+                        result = result.concat(convertTreeToFlat(tree[i]['__children__']));
+                    }
+                }
+                return result;
+            };
+
             $scope.col_defs = [
                 {
                     field: "menu_text"
@@ -123,9 +164,19 @@
                     displayName:  'Delete',
                     cellTemplate: '<button ng-click="tree.remove_node(node)" class="btn btn-default btn-sm">Delete</button>'
                 }];
+
             $scope.saveMenu =  function () {
-                console.log($scope.menuItems);
+                var items = convertTreeToFlat($scope.menuItems);
+                for(var i=0; i<items.length; i++) {
+                    saveMenuItem(items[i]);
+                }
             };
+
+            $scope.editMenuItem = function (item) {
+
+
+            };
+
 
             getMenuItems(1);
         }]);
@@ -158,8 +209,13 @@
                 return $http.get('/admin/menu/item/api/list/'+menu_id);
             };
 
+            var _saveMenuItem = function (item) {
+                return $http.post('/admin/menu/item/api/'+item.id, item);
+            };
+
             return {
-                getMenuItems: _getMenuItems
+                getMenuItems: _getMenuItems,
+                saveMenuItem: _saveMenuItem
             }
 
         });
