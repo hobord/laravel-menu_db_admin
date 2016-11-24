@@ -17,7 +17,8 @@ Route::group(['prefix' => 'admin/menu/item/api'], function () {
 
     Route::group(['prefix' => '/', 'middleware' => ['auth','permission:admin.menu.manage']], function () {
         Route::post('/', 'MenuItemApiController@create');
-        Route::post('/{item_id}',  'MenuItemApiController@update');
+        Route::post('/all',  'MenuItemApiController@updateAll');
+        Route::post('/{item_id?}',  'MenuItemApiController@update');
         Route::get('/delete/{item_id}',  'MenuItemApiController@delete');
     });
 });

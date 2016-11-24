@@ -38,8 +38,8 @@
                         <th>Name</th>
                         <th>Machine name</th>
                         <th>Description</th>
-                        <th>Created</th>
                         <th>Updated</th>
+                        <th>Created</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -60,12 +60,14 @@
             </div><!-- box-footer -->
         </div><!-- /.box -->
     </form>
-    <div class="box" ng-controller="menuCtrl">
+
+<div  ng-controller="menuCtrl">
+    <div class="box">
         <div class="box-header with-border">
             <h3 class="box-title">Menu items</h3>
             <div class="box-tools pull-right">
                 <!-- Buttons, labels, and many other things can be placed here! -->
-                <a href="{{route('admin.menu')}}" class="btn btn-success">Create Menu Item</a>
+                <a href="#" class="btn btn-success" ng-click="createMenuItem(1)">Create Menu Item</a>
             </div><!-- /.box-tools -->
         </div><!-- /.box-header -->
         <div class="box-body">
@@ -81,13 +83,38 @@
                 enable-drag="true"
                 enable-drop="true"
             >
-
         </div><!-- /.box-body -->
         <div class="box-footer text-right">
             <button type="button" class="btn btn-success" ng-click="saveMenu()">Save</button>
         </div><!-- box-footer -->
     </div><!-- /.box -->
-    @include('vendor.hobord.menu_db_admin.angular_template')
+
+
+    <!-- MenuItemEditModal -->
+    <div id="menuItemEditModal" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">Edit Menu item</h4>
+                </div>
+                <div class="modal-body">
+                    @include('vendor.hobord.menu_db_admin.angular_menuitem')
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger pull-left" data-dismiss="modal" ng-click="deleteMenuItem(editMenuItem)">Delete</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-success" data-dismiss="modal" ng-click="saveMenuItem(editMenuItem)">Save</button>
+                </div>
+            </div>
+
+        </div>
+    </div><!-- /MenuItemEditModal -->
+</div>
+
+    @include('vendor.hobord.menu_db_admin.angular_menu_tree')
 </div>
 @endsection
 @section('header_styles')
@@ -117,7 +144,23 @@
 
             var saveMenuItem = function (item) {
                 servicesHttpFacade.saveMenuItem(item).success(function (resultData, status, headers, config) {
+                    getMenuItems($scope.currentMenuId);
+                }).error(function (resultData, status, headers, config) {
+                    console.error('Error data:', resultData);
+                });
+            };
 
+            var deleteMenuItem = function (item_id) {
+                servicesHttpFacade.deleteMenuItem(item_id).success(function (resultData, status, headers, config) {
+                    getMenuItems($scope.currentMenuId);
+                }).error(function (resultData, status, headers, config) {
+                    console.error('Error data:', resultData);
+                });
+            };
+
+            var saveAllMenuItems = function (items)  {
+                servicesHttpFacade.saveAllMenuItems(items).success(function (resultData, status, headers, config) {
+                    getMenuItems($scope.currentMenuId);
                 }).error(function (resultData, status, headers, config) {
                     console.error('Error data:', resultData);
                 });
@@ -159,25 +202,49 @@
                     field: "menu_text"
                 }, {
                     displayName:  'Edit',
-                    cellTemplate: '<button ng-click="tree.addFunction(node)" class="btn btn-default btn-sm">Edit</button>'
-                }, {
-                    displayName:  'Delete',
-                    cellTemplate: '<button ng-click="tree.remove_node(node)" class="btn btn-default btn-sm">Delete</button>'
+                    cellTemplate: '<button ng-click="openMenuItem(node)" class="btn btn-default btn-sm">Edit</button>'
                 }];
 
             $scope.saveMenu =  function () {
                 var items = convertTreeToFlat($scope.menuItems);
-                for(var i=0; i<items.length; i++) {
-                    saveMenuItem(items[i]);
-                }
+                saveAllMenuItems(items);
+//                for(var i=0; i<items.length; i++) {
+//                    saveMenuItem(items[i]);
+//                }
             };
 
-            $scope.editMenuItem = function (item) {
+            $scope.createMenuItem = function (menu_id) {
+                    var item = {
+                        id : null,
+                        parent_id : null,
+                        menu_id:menu_id,
+                        weight : -1,
+                        unique_name: 'unique_name',
+                        menu_text : "new menu item name",
+                        parameters: {},
+                        meta_data: {}
+                    }
+                $scope.openMenuItem(item);
+            };
 
+            $scope.openMenuItem = function (item) {
+//                angular.copy(item, $scope.editMenuItem);
+                $scope.editMenuItem = item;
+                $('#menuItemEditModal').modal('show');
+            };
 
+            $scope.saveMenuItem = function (item) {
+                saveMenuItem(item);
+                $('#menuItemEditModal').modal('hide');
+            };
+
+            $scope.deleteMenuItem = function(item) {
+                deleteMenuItem(item.id);
+                $('#menuItemEditModal').modal('hide');
             };
 
 
+            $scope.currentMenuId = 1;
             getMenuItems(1);
         }]);
 
@@ -213,9 +280,19 @@
                 return $http.post('/admin/menu/item/api/'+item.id, item);
             };
 
+            var _saveAllMenuItems = function (items) {
+                return $http.post('/admin/menu/item/api/all', {'items':items});
+            };
+
+            var _deleteMenuItem = function (item_id) {
+                return $http.get('/admin/menu/item/api/delete/'+item_id);
+            };
+
             return {
                 getMenuItems: _getMenuItems,
-                saveMenuItem: _saveMenuItem
+                saveMenuItem: _saveMenuItem,
+                saveAllMenuItems: _saveAllMenuItems,
+                deleteMenuItem: _deleteMenuItem
             }
 
         });
