@@ -30,6 +30,8 @@ class MenuApiController extends Controller
         // @var Hobord\MenuDb\Menu $menu
         $menu->fill($request->all());
         $menu->save();
+
+        return $menu;
     }
 
     public function delete($menu_id)

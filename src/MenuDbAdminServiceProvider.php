@@ -48,7 +48,7 @@ class MenuDbAdminServiceProvider extends ServiceProvider
             });
 
             $router->group([
-                'middleware' => 'api',
+                'middleware' => 'web',
             ], function ($router) {
                 include __DIR__.'/routes/api.php';
             });

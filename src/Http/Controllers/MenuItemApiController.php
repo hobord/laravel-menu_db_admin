@@ -12,7 +12,7 @@ class MenuItemApiController extends Controller
 {
     public function index($menu_id)
     {
-        $menu_items = MenuItem::where('menu_id',$menu_id)->get();
+        $menu_items = MenuItem::where('menu_id',$menu_id)->orderBy('parent_id')->orderBy('weight', 'asc')->get();
         return $menu_items;
     }
 
