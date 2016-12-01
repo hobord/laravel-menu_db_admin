@@ -166,6 +166,13 @@
                 });
             };
 
+            var getPermissions = function () {
+                servicesHttpFacade.getPermissions().success(function (resultData, status, headers, config) {
+                    $scope.permissions = resultData;
+                }).error(function (resultData, status, headers, config) {
+                    console.error('Error data:', resultData);
+                });
+            };
             var convertTreeToFlat = function(tree)
             {
                 var result = [];
@@ -246,6 +253,7 @@
 
             $scope.currentMenuId = 1;
             getMenuItems(1);
+            getPermissions();
         }]);
 
         var myApp = angular.module('myApp', [
@@ -288,11 +296,17 @@
                 return $http.get('/admin/menu/item/api/delete/'+item_id);
             };
 
+            var _getPermissions = function (menu_id) {
+                return $http.get('/admin/acl/api/permission/list');
+            };
+
             return {
                 getMenuItems: _getMenuItems,
                 saveMenuItem: _saveMenuItem,
                 saveAllMenuItems: _saveAllMenuItems,
-                deleteMenuItem: _deleteMenuItem
+                deleteMenuItem: _deleteMenuItem,
+
+                getPermissions: _getPermissions
             }
 
         });
